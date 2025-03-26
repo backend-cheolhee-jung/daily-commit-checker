@@ -10,50 +10,58 @@ import kotlinx.coroutines.withContext
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import org.springframework.mail.javamail.JavaMailSender
-import org.springframework.stereotype.Component
 import java.io.StringWriter
 import kotlin.text.Charsets.UTF_8
 
-@Component
 class EmailClient(
     private val javaMailSender: JavaMailSender,
     private val mailProperty: MailProperty,
     private val ryuProperty: RyuProperty,
-) {
-    suspend fun sendEmailToRyu() = coroutineScope {
-        val writer = StringWriter()
-        val msg = writer.appendHTML().html {
-            head {
-                style {
-                    +"""
-                        .content {
+) : AlarmSender {
+    override suspend fun send(
+        alarm: Alarm,
+    ) =
+        coroutineScope {
+            val writer = StringWriter()
+            val msg = writer.appendHTML().html {
+                head {
+                    style {
+                        +"""
+                        $CONTENT {
                             font-size: 17px;
                             padding-right: 30px;
                             padding-left: 30px;
                         }
                     """.trimIndent()
+                    }
                 }
-            }
 
-            body {
-                h1("title") {
-                    style = "font-size: 30px; padding-right: 30px; padding-left: 30px;"
-                    +"npm quill 확인해라"
+                body {
+                    h1(TITLE) {
+                        style = "font-size: 30px; padding-right: 30px; padding-left: 30px;"
+                        +alarm.message
+                    }
                 }
-            }
-        }.toString()
+            }.toString()
 
-        val internetAddress = withContext(Dispatchers.IO) {
-            InternetAddress(mailProperty.username, "Cherhy Jung")
+            val internetAddress = withContext(Dispatchers.IO) {
+                InternetAddress(mailProperty.username, PERSONAL)
+            }
+            val message = javaMailSender.createMimeMessage()
+                .apply {
+                    addRecipients(MimeMessage.RecipientType.TO, ryuProperty.email)
+                    subject = alarm.message
+                    setText(msg, UTF_8.name(), HTML)
+                    setFrom(internetAddress)
+                }
+
+            javaMailSender.send(message)
         }
-        val message = javaMailSender.createMimeMessage()
-            .apply {
-                addRecipients(MimeMessage.RecipientType.TO, ryuProperty.email)
-                subject = "npm quill 확인해라"
-                setText(msg, UTF_8.name(), "html")
-                setFrom(internetAddress)
-            }
 
-        javaMailSender.send(message)
+    companion object {
+        private const val CONTENT = ".content"
+        private const val TITLE = "title"
+        private const val PERSONAL = "Cherhy Jung"
+        private const val HTML = "html"
     }
 }
