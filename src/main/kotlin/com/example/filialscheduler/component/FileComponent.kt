@@ -15,7 +15,9 @@ class FileComponent(
         file.readText()
     }
 
-    suspend fun writeLastBlogId(id: String) = withContext(Dispatchers.IO) {
+    suspend fun writeLastBlogId(
+        id: String,
+    ) = withContext(Dispatchers.IO) {
         val file = File(locationProperty.blogPath)
         file.writeText(id)
     }
