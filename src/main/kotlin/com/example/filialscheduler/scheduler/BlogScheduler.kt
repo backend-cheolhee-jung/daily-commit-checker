@@ -1,10 +1,11 @@
 package com.example.filialscheduler.scheduler
 
-import com.example.filialscheduler.client.*
+import com.example.filialscheduler.client.AlarmSender
+import com.example.filialscheduler.client.BlogClient
 import com.example.filialscheduler.component.FileComponent
 import com.example.filialscheduler.constant.ASIA_SEOUL
-import com.example.filialscheduler.constant.DefaultMessage.PENALTY_MESSAGE
 import com.example.filialscheduler.constant.DefaultMessage.CONGRATULATORY_MESSAGE
+import com.example.filialscheduler.constant.DefaultMessage.PENALTY_MESSAGE
 import com.example.filialscheduler.constant.FIRST_DAY_ONE_MINUTE_PAST_MIDNIGHT
 import com.example.filialscheduler.constant.SLACK_ALARM_SENDER
 import com.example.filialscheduler.constant.SMS_ALARM_SENDER
@@ -34,19 +35,13 @@ class BlogScheduler(
 
             launch {
                 try {
-                    smsClient.send(
-                        Alarm.of(PENALTY_MESSAGE)
-                    )
+                    smsClient.send(PENALTY_MESSAGE)
                 } catch (e: Exception) {
-                    slackClient.send(
-                        Alarm.of(CONGRATULATORY_MESSAGE)
-                    )
+                    slackClient.send(CONGRATULATORY_MESSAGE)
                 }
             }
         } else {
-            slackClient.send(
-                Alarm.of(CONGRATULATORY_MESSAGE)
-            )
+            slackClient.send(CONGRATULATORY_MESSAGE)
         }
     }
 }

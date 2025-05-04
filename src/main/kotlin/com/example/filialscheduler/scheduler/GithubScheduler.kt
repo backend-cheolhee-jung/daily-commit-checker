@@ -1,12 +1,11 @@
 package com.example.filialscheduler.scheduler
 
-import com.example.filialscheduler.client.Alarm
 import com.example.filialscheduler.client.AlarmSender
 import com.example.filialscheduler.client.GithubClient
 import com.example.filialscheduler.constant.ASIA_SEOUL
+import com.example.filialscheduler.constant.DefaultMessage.CONGRATULATORY_MESSAGE
 import com.example.filialscheduler.constant.DefaultMessage.FAIL_SMS
 import com.example.filialscheduler.constant.DefaultMessage.PENALTY_MESSAGE
-import com.example.filialscheduler.constant.DefaultMessage.CONGRATULATORY_MESSAGE
 import com.example.filialscheduler.constant.EVERYDAY_ONE_MINUTE_PAST_TWELVE_PM
 import com.example.filialscheduler.constant.SLACK_ALARM_SENDER
 import com.example.filialscheduler.constant.SMS_ALARM_SENDER
@@ -27,18 +26,12 @@ class GithubScheduler(
 
         if (yesterdayCommits.isZero()) {
             try {
-                smsClient.send(
-                    Alarm.of(PENALTY_MESSAGE)
-                )
+                smsClient.send(PENALTY_MESSAGE)
             } catch (e: Exception) {
-                slackClient.send(
-                    Alarm.of(FAIL_SMS)
-                )
+                slackClient.send(FAIL_SMS)
             }
         } else {
-            slackClient.send(
-                Alarm.of(CONGRATULATORY_MESSAGE)
-            )
+            slackClient.send(CONGRATULATORY_MESSAGE)
         }
     }
 

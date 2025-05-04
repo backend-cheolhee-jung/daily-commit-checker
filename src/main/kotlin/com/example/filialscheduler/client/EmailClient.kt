@@ -1,7 +1,8 @@
 package com.example.filialscheduler.client
 
+import com.example.filialscheduler.constant.EMAIL_ALARM_SENDER
+import com.example.filialscheduler.constant.PROTOTYPE_BEAN
 import com.example.filialscheduler.property.MailProperty
-import com.example.filialscheduler.property.RyuProperty
 import jakarta.mail.internet.InternetAddress
 import jakarta.mail.internet.MimeMessage
 import kotlinx.coroutines.Dispatchers
@@ -9,17 +10,22 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
+import org.springframework.context.annotation.Scope
 import org.springframework.mail.javamail.JavaMailSender
+import org.springframework.stereotype.Component
 import java.io.StringWriter
 import kotlin.text.Charsets.UTF_8
 
+@Scope(PROTOTYPE_BEAN)
+@Component(EMAIL_ALARM_SENDER)
 class EmailClient(
     private val javaMailSender: JavaMailSender,
     private val mailProperty: MailProperty,
-    private val ryuProperty: RyuProperty,
 ) : AlarmSender {
+    lateinit var to: String
+
     override suspend fun send(
-        alarm: Alarm,
+        message: String,
     ) =
         coroutineScope {
             val writer = StringWriter()
@@ -39,7 +45,7 @@ class EmailClient(
                 body {
                     h1(TITLE) {
                         style = "font-size: 30px; padding-right: 30px; padding-left: 30px;"
-                        +alarm.message
+                        +message
                     }
                 }
             }.toString()
@@ -47,15 +53,15 @@ class EmailClient(
             val internetAddress = withContext(Dispatchers.IO) {
                 InternetAddress(mailProperty.username, PERSONAL)
             }
-            val message = javaMailSender.createMimeMessage()
+            val mimeMessage = javaMailSender.createMimeMessage()
                 .apply {
-                    addRecipients(MimeMessage.RecipientType.TO, ryuProperty.email)
-                    subject = alarm.message
+                    addRecipients(MimeMessage.RecipientType.TO, to)
+                    subject = message
                     setText(msg, UTF_8.name(), HTML)
                     setFrom(internetAddress)
                 }
 
-            javaMailSender.send(message)
+            javaMailSender.send(mimeMessage)
         }
 
     companion object {

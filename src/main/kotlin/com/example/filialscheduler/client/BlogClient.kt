@@ -2,7 +2,6 @@ package com.example.filialscheduler.client
 
 import com.example.filialscheduler.constant.VELOG_ENDPOINT
 import com.example.filialscheduler.property.CherhyProperty
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
