@@ -8,6 +8,6 @@ import org.springframework.web.reactive.function.BodyInserters
 fun String.toSlackMessage(): BodyInserter<String, ReactiveHttpOutputMessage> =
     BodyInserters.fromValue(
         ObjectMapper().writeValueAsString(
-            mapOf("text" to "오늘 하루도 커밋 하느라 고생 했습니다.^^")
+            mapOf("text" to this)
         )
     )
